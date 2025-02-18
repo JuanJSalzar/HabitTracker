@@ -1,5 +1,7 @@
 using HabitsTracker.Data;
 using HabitsTracker.Models;
+using HabitsTracker.Repository.GenericRepository;
+using HabitsTracker.Repository.Implementations;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +21,8 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddDbContext<HabitTrackerContext>(options =>
     options.UseSqlServer(connectionString));
+
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
 var app = builder.Build();
 
