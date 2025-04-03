@@ -13,7 +13,7 @@ namespace HabitsTracker.Repository.Implementations
             _context = context;
             _dbSet = _context.Set<T>();
         }
-
+        public IQueryable<T> GetQueryable() => _dbSet.AsQueryable();
         public async Task<IEnumerable<T>> GetAllAsync()
         {
             return await _dbSet.ToListAsync();
@@ -22,15 +22,17 @@ namespace HabitsTracker.Repository.Implementations
         {
             return await _dbSet.FindAsync(id);
         }
-        public async Task AddAsync(T entity)
+        public async Task<T> AddAsync(T entity)
         {
-            await _dbSet.AddAsync(entity);
+            var result = await _dbSet.AddAsync(entity);
             await _context.SaveChangesAsync();
+            return result.Entity;
         }
-        public async Task UpdateAsync(T entity)
+        public async Task<T> UpdateAsync(T entity)
         {
             _dbSet.Update(entity);
             await _context.SaveChangesAsync();
+            return entity;
         }
         public async Task DeleteAsync(int id)
         {
