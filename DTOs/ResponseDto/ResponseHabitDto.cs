@@ -10,6 +10,6 @@ namespace HabitsTracker.DTOs.ResponseDto
         int UserId,
         DateTime CreatedAt,
         DateTime UpdatedAt,
-        HabitLogDto? CurrentLog
+        ResponseHabitLogDto? CurrentLog
     );
 }

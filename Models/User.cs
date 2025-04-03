@@ -11,7 +11,6 @@ namespace HabitsTracker.Models
         [MinLength(3, ErrorMessage = "Your last name must be at least 5 characters")]
         public required string LastName { get; set; }
         [EmailAddress(ErrorMessage = "Invalid email format")]
-        [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "Invalid email format")]
         public required string Email { get; set; }
         public ICollection<Habit> Habits { get; } = [];
     }

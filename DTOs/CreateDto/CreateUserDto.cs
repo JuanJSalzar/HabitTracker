@@ -8,14 +8,16 @@ using HabitsTracker.Models;
 namespace HabitsTracker.DTOs.CreateDto
 {
     public record CreateUserDto(
-    [property: MinLength(3, ErrorMessage = "Name must be at least 3 characters")]
-    string Name,
+        [Required]
+        [MinLength(3, ErrorMessage = "Name must be at least 3 characters")]
+        string Name,
 
-    [property: MinLength(5, ErrorMessage = "Your last name must be at least 5 characters")]
-    string LastName,
+        [Required]
+        [MinLength(5, ErrorMessage = "Your last name must be at least 5 characters")]
+        string LastName,
 
-    [property: EmailAddress(ErrorMessage = "Invalid email format")]
-    [property: RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "Invalid email format")]
-    string Email
-);
+        [Required]
+        [EmailAddress(ErrorMessage = "Invalid email format")]
+        string Email
+    );
 }
