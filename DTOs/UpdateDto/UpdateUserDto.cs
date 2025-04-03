@@ -8,17 +8,16 @@ using HabitsTracker.Models;
 namespace HabitsTracker.DTOs.UpdateDto
 {
     public record UpdateUserDto(
-    int Id,
+        [Required]
+        [MinLength(3, ErrorMessage = "Name must be at least 3 characters")]
+        string Name,
 
-    [property: MinLength(3, ErrorMessage = "Name must be at least 3 characters")]
-    string Name,
+        [Required]
+        [MinLength(3, ErrorMessage = "Your last name must be at least 5 characters")]
+        string LastName,
 
-    [property: MinLength(5, ErrorMessage = "Your last name must be at least 5 characters")]
-    string LastName,
-
-    [property: EmailAddress(ErrorMessage = "Invalid email format")]
-    [property: RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "Invalid email format")]
-    string Email
-);
-
+        [Required]
+        [EmailAddress(ErrorMessage = "Invalid email format")]
+        string Email
+    );
 }
