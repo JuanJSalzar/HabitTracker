@@ -15,7 +15,8 @@ namespace HabitsTracker.Mappings
     {
         public UserMappingProfile()
         {
-            CreateMap<CreateUserDto, User>(); //Create user
+            CreateMap<CreateUserDto, User>()
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email)); //Create user
             CreateMap<User, ResponseUserDto>(); //Get user
             CreateMap<UpdateUserDto, User>(); //Update User
         }

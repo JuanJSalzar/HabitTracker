@@ -18,6 +18,9 @@ namespace HabitsTracker.DTOs.CreateDto
 
         [Required]
         [EmailAddress(ErrorMessage = "Invalid email format")]
-        string Email
+        string Email,
+
+        [Required]
+        string Password
     );
 }

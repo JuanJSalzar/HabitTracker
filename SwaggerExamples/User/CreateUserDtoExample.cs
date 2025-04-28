@@ -15,7 +15,8 @@ namespace HabitsTracker.SwaggerExamples.User
             return new CreateUserDto(
                 Name: "John",
                 LastName: "Doe",
-                Email: "john.doe@example.com"
+                Email: "john.doe@example.com",
+                Password: "m#P52s@ap$V"
             );
         }
     }

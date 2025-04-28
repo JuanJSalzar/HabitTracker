@@ -8,6 +8,7 @@ using HabitsTracker.Services.IServices;
 using HabitsTracker.Services.ServicesImplementation;
 using HabitsTracker.SwaggerExamples.Habit;
 using HabitsTracker.SwaggerExamples.User;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
@@ -26,10 +27,7 @@ builder.Services.AddSwaggerGen(options =>
     options.ExampleFilters();
 });
 
-builder.Services.AddSwaggerExamplesFromAssemblyOf<CreateUserDtoExample>();
-builder.Services.AddSwaggerExamplesFromAssemblyOf<UpdateUserDtoExample>();
-builder.Services.AddSwaggerExamplesFromAssemblyOf<CreateHabitDtoExample>();
-builder.Services.AddSwaggerExamplesFromAssemblyOf<UpdateHabitDtoExample>();
+builder.Services.AddSwaggerExamplesFromAssemblyOf<Program>();
 
 if (builder.Environment.IsDevelopment())
 {
@@ -40,14 +38,28 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<HabitTrackerContext>(options =>
     options.UseSqlServer(connectionString));
 
+builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
+{
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 8;
+    options.Password.RequireUppercase = true;
+    options.User.RequireUniqueEmail = true;
+
+    options.User.RequireUniqueEmail = true;
+
+})
+.AddEntityFrameworkStores<HabitTrackerContext>()
+.AddDefaultTokenProviders();
+
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-builder.Services.AddScoped((typeof(IUserRepository)), typeof(UserRepository));
-builder.Services.AddScoped((typeof(IHabitRepository)), typeof(HabitRepository));
+builder.Services.AddScoped(typeof(IUserRepository), typeof(UserRepository));
+builder.Services.AddScoped(typeof(IHabitRepository), typeof(HabitRepository));
 
 builder.Services.AddAutoMapper(typeof(HabitLogMappingProfile), typeof(HabitMappingProfile), typeof(UserMappingProfile));
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IHabitService, HabitService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -60,6 +72,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
