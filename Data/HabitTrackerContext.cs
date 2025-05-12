@@ -1,13 +1,15 @@
 using HabitsTracker.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+
 
 namespace HabitsTracker.Data
 {
-    public class HabitTrackerContext(DbContextOptions<HabitTrackerContext> options) : DbContext(options)  //This is how context configuration from AddDbContext is passed to the DbContext
+    public class HabitTrackerContext : IdentityDbContext<User, IdentityRole<int>, int>
     {
+        public HabitTrackerContext(DbContextOptions<HabitTrackerContext> options) : base(options) { }
         public DbSet<Habit> Habits { get; set; } = null!;
-        public DbSet<User> Users { get; set; }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -47,7 +49,7 @@ namespace HabitsTracker.Data
                 u.Property(u => u.Name).IsRequired(true).HasMaxLength(100);
                 u.Property(u => u.LastName).IsRequired(true).HasMaxLength(100);
                 u.Property(u => u.Email).IsRequired(true).HasMaxLength(50);
-                u.HasIndex(u => u.Email).IsUnique().HasDatabaseName("IX_User_Email");
+                u.HasIndex(u => u.Email).IsUnique();
                 u.Property(u => u.UpdatedAt).IsRequired(true).HasDefaultValueSql("GETDATE()");
                 u.Property(u => u.CreatedAt).IsRequired(true).HasDefaultValueSql("GETDATE()");
             });
