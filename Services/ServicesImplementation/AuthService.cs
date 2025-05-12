@@ -1,24 +1,21 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
-using HabitsTracker.DTOs.CreateDto;
+using HabitsTracker.DTOs.AuthDto;
+using HabitsTracker.Extensions.JWT;
 using HabitsTracker.Models;
 using HabitsTracker.Services.IServices;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 
 namespace HabitsTracker.Services.ServicesImplementation
 {
-    public class AuthService(UserManager<User> userManager, SignInManager<User> signInManager, IMapper mapper, ILogger<AuthService> logger) : IAuthService
+    public class AuthService(IConfiguration configuration, UserManager<User> userManager, SignInManager<User> signInManager, IMapper mapper, ILogger<AuthService> logger) : IAuthService
     {
+        private readonly IConfiguration _configuration = configuration;
         private readonly UserManager<User> _userManager = userManager;
         private readonly SignInManager<User> _signInManager = signInManager;
         private readonly IMapper _mapper = mapper;
         private readonly ILogger<AuthService> _logger = logger;
-        public async Task RegisterAsync(CreateUserDto createUserDto)
+        public async Task RegisterAsync(RegisterUserDto createUserDto)
         {
             _logger.LogInformation("Starting user registration for email: {Email}", createUserDto.Email);
 
@@ -53,6 +50,26 @@ namespace HabitsTracker.Services.ServicesImplementation
                 _logger.LogError("User creation failed for email {Email}: {Errors}", createUserDto.Email, errors);
                 throw new ValidationException($"User creation failed: {errors}");
             }
+        }
+
+        public async Task<AuthResultDto> LoginAsync(LoginDto loginDto)
+        {
+            _logger.LogInformation("Login attempt for email: {Email}", loginDto.Email);
+
+            var user = await _userManager.FindByEmailAsync(loginDto.Email);
+
+            if (user is null || !await _userManager.CheckPasswordAsync(user, loginDto.Password))
+            {
+                _logger.LogWarning("Login failed for email: {Email}", loginDto.Email);
+                throw new UnauthorizedAccessException("Invalid Credentials");
+            }
+
+            var jwtTokenGenerator = new JwtTokenGenerator(_configuration);
+            var token = jwtTokenGenerator.GenerateToken(user);
+
+            _logger.LogInformation("Login successful for user ID: {UserId}", user.Id);
+
+            return new AuthResultDto(Token: token, ExpiresAt: DateTime.Now.AddHours(1));
         }
     }
 }

@@ -5,15 +5,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using HabitsTracker.Models;
 
-namespace HabitsTracker.DTOs.CreateDto
+namespace HabitsTracker.DTOs.AuthDto
 {
-    public record CreateUserDto(
+    public record RegisterUserDto(
         [Required]
         [MinLength(3, ErrorMessage = "Name must be at least 3 characters")]
         string Name,
 
         [Required]
-        [MinLength(5, ErrorMessage = "Your last name must be at least 5 characters")]
+        [MinLength(3, ErrorMessage = "Your last name must be at least 5 characters")]
         string LastName,
 
         [Required]
