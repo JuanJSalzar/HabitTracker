@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using HabitsTracker.ActionFilters;
+using HabitsTracker.DTOs.AuthDto;
 using HabitsTracker.DTOs.CreateDto;
 using HabitsTracker.DTOs.UpdateDto;
 using HabitsTracker.Services.IServices;
@@ -28,7 +29,7 @@ namespace HabitsTracker.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateUserAsync([FromBody] CreateUserDto createUserDto)
+        public async Task<IActionResult> CreateUserAsync([FromBody] RegisterUserDto createUserDto)
         {
             await _userService.CreateUserAsync(createUserDto);
             return Ok(new { message = "User created successfully" });

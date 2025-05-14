@@ -10,10 +10,10 @@ namespace HabitsTracker.Services.IServices
 {
     public interface IHabitService
     {
-        Task<IEnumerable<ResponseHabitDto>> GetAllHabitsAsync();
-        Task<ResponseHabitDto> GetHabitByIdAsync(int id);
-        Task CreateHabitAsync(CreateHabitDto createHabitDto);
-        Task UpdateHabitAsync(int id, UpdateHabitDto updateHabitDto);
-        Task DeleteHabitAsync(int id);
+        Task<IEnumerable<ResponseHabitDto>> GetAllHabitsByUser(int userId);
+        Task<ResponseHabitDto> GetHabitByIdAsync(int userId, int id);
+        Task CreateHabitAsync(CreateHabitDto createHabitDto, int userId);
+        Task UpdateHabitAsync(int id, UpdateHabitDto updateHabitDto, int userId);
+        Task DeleteHabitAsync(int id, int userId);
     }
 }

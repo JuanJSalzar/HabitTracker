@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data;
 using AutoMapper;
 using Azure;
+using HabitsTracker.DTOs.AuthDto;
 using HabitsTracker.DTOs.CreateDto;
 using HabitsTracker.DTOs.ResponseDto;
 using HabitsTracker.DTOs.UpdateDto;
@@ -66,7 +67,7 @@ namespace HabitsTracker.Services.ServicesImplementation
 
             return _mapper.Map<ResponseUserDto>(user);
         }
-        public async Task CreateUserAsync(CreateUserDto createUserDto)
+        public async Task CreateUserAsync(RegisterUserDto createUserDto)
         {
             _logger.LogInformation("Received request to create user with Name: {Name}", createUserDto.Name);
 

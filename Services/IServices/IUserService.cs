@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HabitsTracker.DTOs.AuthDto;
 using HabitsTracker.DTOs.CreateDto;
 using HabitsTracker.DTOs.ResponseDto;
 using HabitsTracker.DTOs.UpdateDto;
@@ -12,7 +13,7 @@ namespace HabitsTracker.Services.IServices
     {
         Task<IEnumerable<ResponseUserDto>> GetAllUsersAsync();
         Task<ResponseUserDto?> GetUserByIdAsync(int id);
-        Task CreateUserAsync(CreateUserDto createUserDto);
+        Task CreateUserAsync(RegisterUserDto createUserDto);
         Task UpdateUserAsync(int id, UpdateUserDto updateUserDto);
         Task DeleteUserAsync(int id);
     }
