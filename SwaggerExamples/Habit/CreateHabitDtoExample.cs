@@ -11,7 +11,6 @@ namespace HabitsTracker.SwaggerExamples.Habit
             return new CreateHabitDto(
                 "Wake Up Early",
                 "This habit is being created to become part of the 5 AM club",
-                1,
                 new CreateHabitLogDto(
                     Status.Pending,
                     "Starting strong!",

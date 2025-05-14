@@ -11,10 +11,6 @@ namespace HabitsTracker.DTOs.CreateDto
 
         string? Description,
 
-        [Required]
-        [Range(1, int.MaxValue, ErrorMessage = "HabitId must be a positive number")]
-        int UserId,
-
         CreateHabitLogDto? CurrentLog // Optional: include habit log data when creating the habit
     );
 }

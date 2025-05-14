@@ -3,49 +3,68 @@ using HabitsTracker.ActionFilters;
 using HabitsTracker.DTOs.CreateDto;
 using HabitsTracker.DTOs.UpdateDto;
 using HabitsTracker.Services.IServices;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace HabitsTracker.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     [ValidateModel]
+    [Authorize]
     public class HabitController(IHabitService habitService) : ControllerBase
     {
         private readonly IHabitService _habitService = habitService;
 
         [HttpGet]
-        public async Task<IActionResult> GetAllHabitsAsync()
+        public async Task<IActionResult> GetHabitFromUserAsync()
         {
-            var habits = await _habitService.GetAllHabitsAsync();
-            return Ok(habits);
+            if (!TryGetUserId(out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
+            
+            var habit = await _habitService.GetAllHabitsByUser(userId);
+            return Ok(habit);
         }
-
+        
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetHabitByIdAsync([FromRoute] int id)
         {
-            var habit = await _habitService.GetHabitByIdAsync(id);
+            if (!TryGetUserId(out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
+
+            var habit = await _habitService.GetHabitByIdAsync(userId, id);
             return Ok(habit);
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateHabitAsync([FromBody] CreateHabitDto createHabitDto)
         {
-            await _habitService.CreateHabitAsync(createHabitDto);
+            if (!TryGetUserId(out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
+
+            await _habitService.CreateHabitAsync(createHabitDto, userId);
             return Ok(new { message = "Habit created successfully" });
         }
 
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateHabitAsync([FromRoute] int id, [FromBody] UpdateHabitDto updateHabitDto)
         {
-            await _habitService.UpdateHabitAsync(id, updateHabitDto);
+            if (!TryGetUserId(out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
+
+            await _habitService.UpdateHabitAsync(id, updateHabitDto, userId);
             return Ok(new { message = "Habit updated successfully" });
         }
 
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteHabitAsync([FromRoute] int id)
         {
-            await _habitService.DeleteHabitAsync(id);
-            return Ok(new { message = "Habit deleted successfully" });
+            if (!TryGetUserId(out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
+
+            await _habitService.DeleteHabitAsync(id, userId);
+            return NoContent();
+        }
+        private bool TryGetUserId(out int userId)
+        {
+            userId = 0;
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return !string.IsNullOrEmpty(userIdString) && int.TryParse(userIdString, out userId);
         }
     }
 }
