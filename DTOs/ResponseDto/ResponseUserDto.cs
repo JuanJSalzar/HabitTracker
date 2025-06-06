@@ -12,7 +12,6 @@ namespace HabitsTracker.DTOs.ResponseDto
         string LastName,
         string Email,
         DateTime CreatedAt,
-        DateTime UpdatedAt,
-        List<ResponseHabitDto> Habits
+        DateTime UpdatedAt
     );
 }

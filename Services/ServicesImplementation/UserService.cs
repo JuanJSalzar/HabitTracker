@@ -4,103 +4,62 @@ using AutoMapper;
 using Azure;
 using HabitsTracker.DTOs.AuthDto;
 using HabitsTracker.DTOs.CreateDto;
+using HabitsTracker.DTOs.PasswordDto;
 using HabitsTracker.DTOs.ResponseDto;
 using HabitsTracker.DTOs.UpdateDto;
 using HabitsTracker.Models;
 using HabitsTracker.Repository.GenericRepository;
 using HabitsTracker.Repository.Implementations;
 using HabitsTracker.Services.IServices;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace HabitsTracker.Services.ServicesImplementation
 {
-    public class UserService(IGenericRepository<User> genericRepository, IUserRepository userRepository, IMapper mapper, ILogger<UserService> logger) : IUserService
+    public class UserService(IGenericRepository<User> genericRepository, 
+                             IPasswordHasher<User> passwordHasher,
+                             IUserRepository userRepository, 
+                             IMapper mapper, 
+                             ILogger<UserService> logger) : IUserService
     {
         private readonly IGenericRepository<User> _genericRepository = genericRepository;
+        private readonly IPasswordHasher<User> _passwordHasher = passwordHasher;
         private readonly IUserRepository _userRepository = userRepository;
         private readonly IMapper _mapper = mapper;
         private readonly ILogger<UserService> _logger = logger;
 
-        public async Task<IEnumerable<ResponseUserDto>> GetAllUsersAsync()
+        public async Task<ResponseUserDto?> GetMyProfile(int userId)
         {
-            _logger.LogInformation("Received request to retrieve all users");
+            _logger.LogInformation("Received request to retrieve user with ID: {userId}", userId);
 
-            _logger.LogInformation("Fetching all users from the database...");
-            var users = await _genericRepository
-                        .GetQueryable()
-                        .Include(u => u.Habits)
-                        .ToListAsync();
-
-            if (users is null || users.Count == 0)
+            if (userId <= 0)
             {
-                _logger.LogWarning("No users found in the database.");
-                throw new KeyNotFoundException("No users found.");
-            }
-
-            _logger.LogDebug("Mapping {UserCount} users to DTOs...", users.Count);
-            var usersMapped = _mapper.Map<IEnumerable<ResponseUserDto>>(users);
-
-            _logger.LogInformation("Successfully fetched {Count} users.", usersMapped.Count());
-            return usersMapped;
-        }
-        public async Task<ResponseUserDto?> GetUserByIdAsync(int id)
-        {
-            _logger.LogInformation("Received request to retrieve user with ID: {UserId}", id);
-
-            if (id <= 0)
-            {
-                _logger.LogWarning("Invalid user ID received: {UserId}", id);
+                _logger.LogWarning("Invalid user ID received: {userId}", userId);
                 throw new ValidationException("Invalid user ID.");
             }
 
-            var user = await _genericRepository
-                        .GetQueryable()
-                        .Include(u => u.Habits)
-                        .FirstOrDefaultAsync(u => u.Id == id);
+            var user = await _genericRepository.GetByIdAsync(userId);
 
-            if (user is null)
-            {
-                _logger.LogWarning("User with ID {UserId} not found.", id);
-                throw new KeyNotFoundException($"User with ID {id} not found.");
-            }
+            if (user is not null) return _mapper.Map<ResponseUserDto>(user);
+            
+            _logger.LogWarning("User with ID {userId} not found.", userId);
+            throw new KeyNotFoundException($"User with ID {userId} not found.");
 
-            return _mapper.Map<ResponseUserDto>(user);
         }
-        public async Task CreateUserAsync(RegisterUserDto createUserDto)
+        public async Task UpdateUserAsync(int userId, UpdateUserDto updateUserDto)
         {
-            _logger.LogInformation("Received request to create user with Name: {Name}", createUserDto.Name);
+            _logger.LogInformation("Received request to update user with ID: {userId}", userId);
 
-            if (string.IsNullOrEmpty(createUserDto.Email))
+            if (userId <= 0)
             {
-                _logger.LogWarning("Validation failed: Email is required.");
-                throw new ValidationException("Email is required");
-            }
-
-            if (await _userRepository.ExistsByEmailAsync(createUserDto.Email))
-            {
-                _logger.LogWarning("Email '{Email}' is already taken. Cannot create user.", createUserDto.Email);
-                throw new ValidationException("Email is already taken");
-            }
-
-            var newUser = _mapper.Map<User>(createUserDto);
-            var createdUser = await _genericRepository.AddAsync(newUser);
-
-            _logger.LogInformation("User created successfully with ID: {UserId}", createdUser.Id);
-        }
-        public async Task UpdateUserAsync(int id, UpdateUserDto updateUserDto)
-        {
-            _logger.LogInformation("Received request to update user with ID: {UserId}", id);
-
-            if (id <= 0)
-            {
-                _logger.LogWarning("Invalid user ID: {UserId}", id);
+                _logger.LogWarning("Invalid user ID: {userId}", userId);
                 throw new ValidationException("Invalid user ID.");
             }
 
             if (updateUserDto is null)
             {
-                _logger.LogWarning("UpdateUserDto is null for user ID: {UserId}", id);
+                _logger.LogWarning("UpdateUserDto is null for user ID: {UserId}", userId);
                 throw new ArgumentNullException(nameof(updateUserDto), "User update data is required.");
             }
 
@@ -110,42 +69,71 @@ namespace HabitsTracker.Services.ServicesImplementation
                 throw new ValidationException("Email is already taken.");
             }
 
-            var user = await _genericRepository.GetByIdAsync(id);
+            var user = await _genericRepository.GetByIdAsync(userId);
             if (user is null)
             {
-                _logger.LogWarning("User not found: {UserId}", id);
-                throw new KeyNotFoundException($"User with ID {id} not found.");
+                _logger.LogWarning("User not found: {userId}", userId);
+                throw new KeyNotFoundException($"User with ID {userId} not found.");
             }
 
             _mapper.Map(updateUserDto, user);
+            
+            user.Email = updateUserDto.Email;
+            user.NormalizedEmail = updateUserDto.Email.ToUpperInvariant();
+            user.UserName = updateUserDto.Email;
+            user.NormalizedUserName = updateUserDto.Email.ToUpperInvariant();
             user.UpdatedAt = DateTime.UtcNow;
+            
             await _genericRepository.UpdateAsync(user);
 
-            _logger.LogInformation("User updated successfully: {UserId}", id);
+            _logger.LogInformation("User updated successfully: {userId}", userId);
         }
-        public async Task DeleteUserAsync(int id)
-        {
-            _logger.LogInformation("Received request to delete user with ID: {UserId}", id);
 
-            if (id <= 0)
+        public async Task ChangePasswordAsync(int userId, ChangePasswordDto changePasswordDto)
+        {
+            if (!changePasswordDto.NewPassword.Equals(changePasswordDto.ConfirmNewPassword))
             {
-                _logger.LogWarning("Invalid user ID: {UserId}", id);
+                throw new ValidationException("Passwords do not match.");
+            }
+
+            var user = await _genericRepository.GetByIdAsync(userId);
+            if(user is null) throw new KeyNotFoundException($"User with ID {userId} not found.");
+
+            if (user.PasswordHash == null)
+                throw new InvalidOperationException("User has no password set.");
+
+            var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, changePasswordDto.CurrentPassword);
+            if (result == PasswordVerificationResult.Failed)
+                throw new ValidationException("Current password is incorrect.");
+
+            user.PasswordHash = _passwordHasher.HashPassword(user, changePasswordDto.NewPassword);
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _genericRepository.UpdateAsync(user);
+        }
+        public async Task DeleteUserAsync(int userId)
+        {
+            _logger.LogInformation("Received request to delete user with ID: {userId}", userId);
+
+            if (userId <= 0)
+            {
+                _logger.LogWarning("Invalid user ID: {userId}", userId);
                 throw new ValidationException("Invalid user ID.");
             }
 
-            _logger.LogInformation("Fetching user with ID: {UserId}", id);
-            var existingUser = await _genericRepository.GetByIdAsync(id);
+            _logger.LogInformation("Fetching user with ID: {userId}", userId);
+            var existingUser = await _genericRepository.GetByIdAsync(userId);
 
             if (existingUser == null)
             {
-                _logger.LogWarning("User with ID {UserId} not found.", id);
-                throw new KeyNotFoundException($"User with ID {id} not found.");
+                _logger.LogWarning("User with ID {UserId} not found.", userId);
+                throw new KeyNotFoundException($"User with ID {userId} not found.");
             }
 
-            _logger.LogInformation("Deleting user with ID: {UserId}", id);
-            await _genericRepository.DeleteAsync(id);
+            _logger.LogInformation("Deleting user with ID: {userId}", userId);
+            await _genericRepository.DeleteAsync(userId);
 
-            _logger.LogInformation("User with ID {UserId} successfully deleted.", id);
+            _logger.LogInformation("User with ID {userId} successfully deleted.", userId);
         }
     }
 }
