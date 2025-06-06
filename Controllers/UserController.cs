@@ -1,52 +1,61 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using HabitsTracker.ActionFilters;
 using HabitsTracker.DTOs.AuthDto;
 using HabitsTracker.DTOs.CreateDto;
+using HabitsTracker.DTOs.PasswordDto;
 using HabitsTracker.DTOs.UpdateDto;
 using HabitsTracker.Services.IServices;
 
 namespace HabitsTracker.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/[controller]/me")]
     [ValidateModel]
     public class UserController(IUserService userService) : ControllerBase
     {
         private readonly IUserService _userService = userService;
 
         [HttpGet]
-        public async Task<IActionResult> GetAllUsersAsync()
+        public async Task<IActionResult> GetMyProfileAsync()
         {
-            var users = await _userService.GetAllUsersAsync();
-            return Ok(users);
-        }
-
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetUsersByIdAsync([FromRoute] int id)
-        {
-            var user = await _userService.GetUserByIdAsync(id);
+            if (!TryGetUserId(out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
+            var user = await _userService.GetMyProfile(userId);
             return Ok(user);
         }
-
-        [HttpPost]
-        public async Task<IActionResult> CreateUserAsync([FromBody] RegisterUserDto createUserDto)
+        
+        [HttpPut]
+        public async Task<IActionResult> UpdateUserAsync([FromBody] UpdateUserDto updateUserDto)
         {
-            await _userService.CreateUserAsync(createUserDto);
-            return Ok(new { message = "User created successfully" });
-        }
+            if (!TryGetUserId(out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
 
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateUserAsync([FromRoute] int id, [FromBody] UpdateUserDto updateUserDto)
-        {
-            await _userService.UpdateUserAsync(id, updateUserDto);
+            await _userService.UpdateUserAsync(userId, updateUserDto);
             return Ok(new { message = "User updated successfully" });
         }
 
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete([FromRoute] int id)
+        [HttpPut("password")]
+        public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePasswordDto changePasswordDto)
         {
-            await _userService.DeleteUserAsync(id);
+            if (!TryGetUserId(out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
+            
+            await _userService.ChangePasswordAsync(userId, changePasswordDto);
+            return Ok(new { message = "Password changed successfully" });
+        }
+        
+        [HttpDelete]
+        public async Task<IActionResult> Delete()
+        {
+            if (!TryGetUserId(out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
+
+            await _userService.DeleteUserAsync(userId);
             return Ok(new { message = "User deleted successfully" });
+        }
+                                        
+        private bool TryGetUserId(out int userId)
+        {
+            userId = 0;
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return !string.IsNullOrEmpty(userIdString) && int.TryParse(userIdString, out userId);
         }
     }
 }

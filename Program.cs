@@ -93,6 +93,7 @@ builder.Services.AddAutoMapper(typeof(HabitLogMappingProfile), typeof(HabitMappi
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IHabitService, HabitService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 builder.Services.Configure<JwtSettings>(jwtSettings);
