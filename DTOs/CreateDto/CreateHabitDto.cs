@@ -1,6 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using HabitsTracker.Models;
-
 
 namespace HabitsTracker.DTOs.CreateDto
 {
@@ -11,6 +9,6 @@ namespace HabitsTracker.DTOs.CreateDto
 
         string? Description,
 
-        CreateHabitLogDto? CurrentLog // Optional: include habit log data when creating the habit
+        CreateHabitLogDto? CurrentLog // Include habit log data when creating the habit
     );
 }

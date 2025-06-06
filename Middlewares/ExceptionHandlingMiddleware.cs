@@ -11,7 +11,7 @@ namespace HabitsTracker.Middlewares
         {
             try
             {
-                await next(context); // Proceed with the next middleware in the pipeline
+                await next(context);
             }
             catch (Exception ex)
             {

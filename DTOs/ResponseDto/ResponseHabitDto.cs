@@ -1,6 +1,3 @@
-
-using HabitsTracker.Models;
-
 namespace HabitsTracker.DTOs.ResponseDto
 {
     public record ResponseHabitDto(

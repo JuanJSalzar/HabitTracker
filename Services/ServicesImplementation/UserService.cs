@@ -1,19 +1,12 @@
-using System.ComponentModel.DataAnnotations;
-using System.Data;
 using AutoMapper;
-using Azure;
-using HabitsTracker.DTOs.AuthDto;
-using HabitsTracker.DTOs.CreateDto;
+using HabitsTracker.Models;
+using HabitsTracker.DTOs.UpdateDto;
+using Microsoft.AspNetCore.Identity;
 using HabitsTracker.DTOs.PasswordDto;
 using HabitsTracker.DTOs.ResponseDto;
-using HabitsTracker.DTOs.UpdateDto;
-using HabitsTracker.Models;
-using HabitsTracker.Repository.GenericRepository;
-using HabitsTracker.Repository.Implementations;
 using HabitsTracker.Services.IServices;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel.DataAnnotations;
+using HabitsTracker.Repository.GenericRepository;
 
 namespace HabitsTracker.Services.ServicesImplementation
 {

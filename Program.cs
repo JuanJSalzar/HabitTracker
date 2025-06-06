@@ -1,32 +1,31 @@
 using System.Text;
-using Azure;
+using Azure.Identity;
+using Azure.AI.OpenAI;
 using HabitsTracker.Data;
-using HabitsTracker.Extensions.JWT;
-using HabitsTracker.Mappings;
-using HabitsTracker.Middlewares;
 using HabitsTracker.Models;
-using HabitsTracker.Repository.GenericRepository;
-using HabitsTracker.Repository.Implementations;
-using HabitsTracker.Services.IServices;
-using HabitsTracker.Services.ServicesImplementation;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using HabitsTracker.Mappings;
+using Microsoft.OpenApi.Models;
+using HabitsTracker.Middlewares;
+using HabitsTracker.Extensions.JWT;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using OpenAI;
 using Swashbuckle.AspNetCore.Filters;
-using Azure.AI.OpenAI;
-using Azure.Identity;
+using HabitsTracker.Services.IServices;
+using HabitsTracker.Repository.Implementations;
+using HabitsTracker.Repository.GenericRepository;
+using HabitsTracker.Services.ServicesImplementation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// --- Add basic services ---
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+
+// --- Swagger ---
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "Habit Tracker API", Version = "v1" });
@@ -65,14 +64,20 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddSwaggerExamplesFromAssemblyOf<Program>();
 
+// --- Configuration ---
+
 if (builder.Environment.IsDevelopment())
 {
     builder.Configuration.AddUserSecrets<Program>();
 }
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection String" + "'DefaultConnection' not found");
 
+// --- Database ---
+
 builder.Services.AddDbContext<HabitTrackerContext>(options =>
     options.UseSqlServer(connectionString));
+
+// --- Identity ---
 
 builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
 {
@@ -87,18 +92,24 @@ builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
 .AddEntityFrameworkStores<HabitTrackerContext>()
 .AddDefaultTokenProviders();
 
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-builder.Services.AddScoped(typeof(IUserRepository), typeof(UserRepository));
-builder.Services.AddScoped(typeof(IHabitRepository), typeof(HabitRepository));
-builder.Services.AddScoped(typeof(IChatMessageRepository), typeof(ChatMessageRepository));
+// --- AutoMapper ---
 
 builder.Services.AddAutoMapper(typeof(HabitLogMappingProfile), typeof(HabitMappingProfile), typeof(UserMappingProfile));
 
+// --- Scoped Services ---
+
+builder.Services.AddScoped(typeof(IUserRepository), typeof(UserRepository));
+builder.Services.AddScoped(typeof(IHabitRepository), typeof(HabitRepository));
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped(typeof(IChatMessageRepository), typeof(ChatMessageRepository));
+
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IHabitService, HabitService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddScoped<IHabitService, HabitService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+
+// --- Singleton --- 
 
 builder.Services.AddSingleton<AzureOpenAIClient>(sp =>
 {
@@ -110,6 +121,8 @@ builder.Services.AddSingleton<AzureOpenAIClient>(sp =>
     }
     return new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential());
 });
+
+// --- JWT Authentication ---
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 builder.Services.Configure<JwtSettings>(jwtSettings);
@@ -140,7 +153,7 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// --- HTTP Request Pipeline ---
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -152,7 +165,6 @@ app.UseHttpsRedirection();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseAuthentication();
-
 app.UseAuthorization();
 
 app.MapControllers();

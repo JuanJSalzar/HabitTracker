@@ -1,10 +1,10 @@
-using System.ComponentModel.DataAnnotations;
 using AutoMapper;
+using HabitsTracker.Models;
 using HabitsTracker.DTOs.AuthDto;
 using HabitsTracker.Extensions.JWT;
-using HabitsTracker.Models;
-using HabitsTracker.Services.IServices;
 using Microsoft.AspNetCore.Identity;
+using HabitsTracker.Services.IServices;
+using System.ComponentModel.DataAnnotations;
 
 namespace HabitsTracker.Services.ServicesImplementation
 {

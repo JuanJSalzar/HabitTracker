@@ -1,12 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
+using HabitsTracker.Utilities;
+using Microsoft.AspNetCore.Mvc;
 using HabitsTracker.Models.Bot;
 using HabitsTracker.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 
 namespace HabitsTracker.Controllers
 {
@@ -25,18 +22,12 @@ namespace HabitsTracker.Controllers
         [HttpPost("response")]
         public async Task<IActionResult> GetResponse([FromBody] Message message)
         {
-            if (!TryGetUserId(out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
+            if (!UserHelper.TryGetUserId(User, out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
 
             if (string.IsNullOrEmpty(message.Prompt)) return BadRequest("Message prompt cannot be null or empty.");
             
             var response = await _chatService.GetResponse(message.Prompt, userId); 
             return Ok(new { Response = response });
-        }
-        private bool TryGetUserId(out int userId)
-        {
-            userId = 0;
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return !string.IsNullOrEmpty(userIdString) && int.TryParse(userIdString, out userId);
         }
     }
 }

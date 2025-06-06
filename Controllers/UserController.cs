@@ -1,10 +1,9 @@
 using System.Security.Claims;
+using HabitsTracker.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using HabitsTracker.ActionFilters;
-using HabitsTracker.DTOs.AuthDto;
-using HabitsTracker.DTOs.CreateDto;
-using HabitsTracker.DTOs.PasswordDto;
 using HabitsTracker.DTOs.UpdateDto;
+using HabitsTracker.DTOs.PasswordDto;
 using HabitsTracker.Services.IServices;
 
 namespace HabitsTracker.Controllers
@@ -19,7 +18,7 @@ namespace HabitsTracker.Controllers
         [HttpGet]
         public async Task<IActionResult> GetMyProfileAsync()
         {
-            if (!TryGetUserId(out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
+            if (!UserHelper.TryGetUserId(User, out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
             var user = await _userService.GetMyProfile(userId);
             return Ok(user);
         }
@@ -27,7 +26,7 @@ namespace HabitsTracker.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateUserAsync([FromBody] UpdateUserDto updateUserDto)
         {
-            if (!TryGetUserId(out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
+            if (!UserHelper.TryGetUserId(User, out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
 
             await _userService.UpdateUserAsync(userId, updateUserDto);
             return Ok(new { message = "User updated successfully" });
@@ -36,7 +35,7 @@ namespace HabitsTracker.Controllers
         [HttpPut("password")]
         public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePasswordDto changePasswordDto)
         {
-            if (!TryGetUserId(out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
+            if (!UserHelper.TryGetUserId(User, out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
             
             await _userService.ChangePasswordAsync(userId, changePasswordDto);
             return Ok(new { message = "Password changed successfully" });
@@ -45,7 +44,7 @@ namespace HabitsTracker.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete()
         {
-            if (!TryGetUserId(out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
+            if (!UserHelper.TryGetUserId(User, out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
 
             await _userService.DeleteUserAsync(userId);
             return Ok(new { message = "User deleted successfully" });

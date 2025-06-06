@@ -9,6 +9,6 @@ namespace HabitsTracker.DTOs.UpdateDto
 
         string? Description,
 
-        UpdateHabitLogDto? CurrentLog // Optional: include updated habit log data
+        UpdateHabitLogDto? CurrentLog // Include updated habit log data
     );
 }
