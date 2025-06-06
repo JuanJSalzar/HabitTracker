@@ -1,11 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using HabitsTracker.ActionFilters;
-using HabitsTracker.DTOs.AuthDto;
-using HabitsTracker.Services.IServices;
 using Microsoft.AspNetCore.Mvc;
+using HabitsTracker.DTOs.AuthDto;
+using HabitsTracker.ActionFilters;
+using HabitsTracker.Services.IServices;
 
 namespace HabitsTracker.Controllers
 {

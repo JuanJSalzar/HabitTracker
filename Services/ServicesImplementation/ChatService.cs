@@ -1,19 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
-using Azure.AI.OpenAI;
-using Azure.Identity;
-using HabitsTracker.Models.Bot;
-using HabitsTracker.Repository.GenericRepository;
-using HabitsTracker.Services.IServices;
 using OpenAI.Chat;
+using Azure.AI.OpenAI;
+using HabitsTracker.Models.Bot;
+using HabitsTracker.Services.IServices;
+using System.ComponentModel.DataAnnotations;
+using HabitsTracker.Repository.GenericRepository;
 
 namespace HabitsTracker.Services.ServicesImplementation
 {
-
     public class ChatService(
         AzureOpenAIClient azureOpenAiClient,
         IChatMessageRepository chatMessageRepository,

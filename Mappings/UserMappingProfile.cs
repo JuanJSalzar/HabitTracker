@@ -1,13 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
-using Azure;
-using HabitsTracker.DTOs.AuthDto;
-using HabitsTracker.DTOs.ResponseDto;
-using HabitsTracker.DTOs.UpdateDto;
 using HabitsTracker.Models;
+using HabitsTracker.DTOs.AuthDto;
+using HabitsTracker.DTOs.UpdateDto;
+using HabitsTracker.DTOs.ResponseDto;
 
 namespace HabitsTracker.Mappings
 {

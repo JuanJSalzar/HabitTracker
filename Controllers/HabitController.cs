@@ -1,10 +1,11 @@
+using System.Security.Claims;
+using HabitsTracker.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using HabitsTracker.ActionFilters;
 using HabitsTracker.DTOs.CreateDto;
 using HabitsTracker.DTOs.UpdateDto;
 using HabitsTracker.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
 
 namespace HabitsTracker.Controllers
 {
@@ -19,7 +20,7 @@ namespace HabitsTracker.Controllers
         [HttpGet]
         public async Task<IActionResult> GetHabitFromUserAsync()
         {
-            if (!TryGetUserId(out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
+            if (!UserHelper.TryGetUserId(User, out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
             
             var habit = await _habitService.GetAllHabitsByUser(userId);
             return Ok(habit);
@@ -28,7 +29,7 @@ namespace HabitsTracker.Controllers
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetHabitByIdAsync([FromRoute] int id)
         {
-            if (!TryGetUserId(out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
+            if (!UserHelper.TryGetUserId(User, out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
 
             var habit = await _habitService.GetHabitByIdAsync(userId, id);
             return Ok(habit);
@@ -37,7 +38,7 @@ namespace HabitsTracker.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateHabitAsync([FromBody] CreateHabitDto createHabitDto)
         {
-            if (!TryGetUserId(out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
+            if (!UserHelper.TryGetUserId(User, out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
 
             await _habitService.CreateHabitAsync(createHabitDto, userId);
             return Ok(new { message = "Habit created successfully" });
@@ -46,7 +47,7 @@ namespace HabitsTracker.Controllers
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateHabitAsync([FromRoute] int id, [FromBody] UpdateHabitDto updateHabitDto)
         {
-            if (!TryGetUserId(out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
+            if (!UserHelper.TryGetUserId(User, out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
 
             await _habitService.UpdateHabitAsync(id, updateHabitDto, userId);
             return Ok(new { message = "Habit updated successfully" });
@@ -55,16 +56,10 @@ namespace HabitsTracker.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteHabitAsync([FromRoute] int id)
         {
-            if (!TryGetUserId(out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
+            if (!UserHelper.TryGetUserId(User, out var userId)) return Unauthorized(new { message = "User identifier not found or invalid." });
 
             await _habitService.DeleteHabitAsync(id, userId);
             return NoContent();
-        }
-        private bool TryGetUserId(out int userId)
-        {
-            userId = 0;
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return !string.IsNullOrEmpty(userIdString) && int.TryParse(userIdString, out userId);
         }
     }
 }

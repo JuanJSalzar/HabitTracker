@@ -1,8 +1,8 @@
 using AutoMapper;
 using HabitsTracker.Models;
 using HabitsTracker.DTOs.CreateDto;
-using HabitsTracker.DTOs.ResponseDto;
 using HabitsTracker.DTOs.UpdateDto;
+using HabitsTracker.DTOs.ResponseDto;
 
 namespace HabitsTracker.Mappings
 {

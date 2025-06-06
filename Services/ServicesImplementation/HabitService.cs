@@ -1,18 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
-using HabitsTracker.DTOs.CreateDto;
-using HabitsTracker.DTOs.ResponseDto;
-using HabitsTracker.DTOs.UpdateDto;
 using HabitsTracker.Models;
-using HabitsTracker.Repository.GenericRepository;
-using HabitsTracker.Repository.Implementations;
+using HabitsTracker.DTOs.CreateDto;
+using HabitsTracker.DTOs.UpdateDto;
+using HabitsTracker.DTOs.ResponseDto;
 using HabitsTracker.Services.IServices;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel.DataAnnotations;
+using HabitsTracker.Repository.GenericRepository;
 
 namespace HabitsTracker.Services.ServicesImplementation
 {
@@ -27,26 +20,6 @@ namespace HabitsTracker.Services.ServicesImplementation
         private readonly IMapper _mapper = mapper;
         private readonly ILogger<HabitService> _logger = logger;
         private readonly IHabitRepository _habitRepository = habitRepository;
-
-        // public async Task<IEnumerable<ResponseHabitDto>> GetAllHabitsAsync()
-        // {
-        //     _logger.LogInformation("Received request to retrieve all habits");
-        //
-        //     _logger.LogInformation("Fetching all habits from the database...");
-        //     var habits = await _genericHabitRepository.GetAllAsync();
-        //
-        //     if (habits is null || !habits.Any())
-        //     {
-        //         _logger.LogWarning("No habits found in the database.");
-        //         throw new KeyNotFoundException("No habits found.");
-        //     }
-        //
-        //     _logger.LogDebug("Mapping {HabitsCount} habits to DTOs...", habits.Count());
-        //     var habitsMapped = _mapper.Map<IEnumerable<ResponseHabitDto>>(habits);
-        //
-        //     _logger.LogInformation("Successfully fetched {Count} habits", habitsMapped.Count());
-        //     return habitsMapped;
-        // }
         public async Task<IEnumerable<ResponseHabitDto>> GetAllHabitsByUser(int userId)
         {
             _logger.LogInformation("Received request to retrieve all habits from the user: {userId}", userId);
@@ -64,7 +37,7 @@ namespace HabitsTracker.Services.ServicesImplementation
             var habits = _habitRepository.GetHabitsFromUser(userId);
             var habitsMapped = _mapper.Map<IEnumerable<ResponseHabitDto>>(habits);
             return habitsMapped;
-        }//✅
+        }
         public async Task<ResponseHabitDto> GetHabitByIdAsync(int userId, int id)
         {
             if (userId <= 0) throw new ArgumentException("User ID must be greater than zero.", nameof(userId));
@@ -84,7 +57,7 @@ namespace HabitsTracker.Services.ServicesImplementation
                 throw new KeyNotFoundException($"Habit with ID {id} not found for user {userId}.");
             }
             return _mapper.Map<ResponseHabitDto>(habit);
-        }//✅
+        }
         public async Task CreateHabitAsync(CreateHabitDto createHabitDto, int userId)
         {
             _logger.LogInformation("Received request to create habit: {HabitName} for User ID: {userId}", createHabitDto.Name, userId);
@@ -114,7 +87,7 @@ namespace HabitsTracker.Services.ServicesImplementation
 
             _logger.LogInformation("Habit '{HabitName}' created successfully for User ID: {userId} with ID: {HabitId}",
                 createdHabit.Name, userId, createdHabit.Id);
-        } //✅
+        } 
         public async Task UpdateHabitAsync(int id, UpdateHabitDto updateHabitDto, int userId)
         {
             _logger.LogInformation("Received request to update Habit ID: {HabitId}", id);
@@ -152,7 +125,7 @@ namespace HabitsTracker.Services.ServicesImplementation
             await _genericHabitRepository.UpdateAsync(habit);
 
             _logger.LogInformation("Habit ID {HabitId} updated successfully.", id);
-        } //✅
+        } 
         public async Task DeleteHabitAsync(int id, int userId)
         {
             _logger.LogInformation("Received request to delete habit with ID: {HabitId}", id);
@@ -181,7 +154,7 @@ namespace HabitsTracker.Services.ServicesImplementation
             await _genericHabitRepository.DeleteAsync(id);
 
             _logger.LogInformation("Habit with ID {HabitId} successfully deleted.", id);
-        } //✅
+        } 
 
     }
 }

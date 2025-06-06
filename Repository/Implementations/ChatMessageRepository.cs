@@ -1,8 +1,7 @@
 ﻿using HabitsTracker.Data;
-using HabitsTracker.Models;
 using HabitsTracker.Models.Bot;
-using HabitsTracker.Repository.GenericRepository;
 using Microsoft.EntityFrameworkCore;
+using HabitsTracker.Repository.GenericRepository;
 
 namespace HabitsTracker.Repository.Implementations;
 

@@ -1,6 +1,6 @@
 using HabitsTracker.Data;
-using HabitsTracker.Repository.GenericRepository;
 using Microsoft.EntityFrameworkCore;
+using HabitsTracker.Repository.GenericRepository;
 
 namespace HabitsTracker.Repository.Implementations
 {
