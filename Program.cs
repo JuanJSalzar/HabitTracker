@@ -1,4 +1,5 @@
 using System.Text;
+using Azure;
 using HabitsTracker.Data;
 using HabitsTracker.Extensions.JWT;
 using HabitsTracker.Mappings;
@@ -8,14 +9,16 @@ using HabitsTracker.Repository.GenericRepository;
 using HabitsTracker.Repository.Implementations;
 using HabitsTracker.Services.IServices;
 using HabitsTracker.Services.ServicesImplementation;
-using HabitsTracker.SwaggerExamples.Habit;
-using HabitsTracker.SwaggerExamples.User;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using OpenAI;
 using Swashbuckle.AspNetCore.Filters;
+using Azure.AI.OpenAI;
+using Azure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,7 +42,7 @@ builder.Services.AddSwaggerGen(options =>
     };
 
     options.AddSecurityDefinition("Bearer", securityScheme);
-    
+
     var securityRequirement = new OpenApiSecurityRequirement
     {
         {
@@ -56,7 +59,7 @@ builder.Services.AddSwaggerGen(options =>
     };
 
     options.AddSecurityRequirement(securityRequirement);
-    
+
     options.ExampleFilters();
 });
 
@@ -87,13 +90,26 @@ builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped(typeof(IUserRepository), typeof(UserRepository));
 builder.Services.AddScoped(typeof(IHabitRepository), typeof(HabitRepository));
+builder.Services.AddScoped(typeof(IChatMessageRepository), typeof(ChatMessageRepository));
 
 builder.Services.AddAutoMapper(typeof(HabitLogMappingProfile), typeof(HabitMappingProfile), typeof(UserMappingProfile));
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IHabitService, HabitService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+
+builder.Services.AddSingleton<AzureOpenAIClient>(sp =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var endpoint = configuration["AzureOpenAI:Endpoint"];
+    if (string.IsNullOrEmpty(endpoint))
+    {
+        throw new InvalidOperationException("AzureOpenAI endpoint not configured.");
+    }
+    return new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential());
+});
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 builder.Services.Configure<JwtSettings>(jwtSettings);
@@ -142,4 +158,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-

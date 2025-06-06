@@ -1,4 +1,5 @@
 using HabitsTracker.Models;
+using HabitsTracker.Models.Bot;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
@@ -10,6 +11,8 @@ namespace HabitsTracker.Data
     {
         public HabitTrackerContext(DbContextOptions<HabitTrackerContext> options) : base(options) { }
         public DbSet<Habit> Habits { get; set; } = null!;
+        public DbSet<ChatMessageEntity> ChatMessages { get; set;}
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -52,6 +55,16 @@ namespace HabitsTracker.Data
                 u.HasIndex(u => u.Email).IsUnique();
                 u.Property(u => u.UpdatedAt).IsRequired(true).HasDefaultValueSql("GETDATE()");
                 u.Property(u => u.CreatedAt).IsRequired(true).HasDefaultValueSql("GETDATE()");
+            });
+
+            modelBuilder.Entity<ChatMessageEntity>(cte =>
+            {
+                cte.ToTable("ChatMessages");
+                cte.HasKey(k => k.Id);
+                cte.Property(cte => cte.UserId).IsRequired(true);
+                cte.Property(cte => cte.Content).IsRequired(true);
+                cte.Property(cte => cte.Role).IsRequired(true).HasMaxLength(10);
+                cte.Property(cte => cte.Timestamp).HasDefaultValueSql("GETUTCDATE()");
             });
         }
     }

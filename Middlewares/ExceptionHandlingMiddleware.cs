@@ -29,6 +29,7 @@ namespace HabitsTracker.Middlewares
                 UnauthorizedAccessException => HttpStatusCode.Unauthorized,
                 DbUpdateException => HttpStatusCode.InternalServerError,
                 NotImplementedException => HttpStatusCode.NotImplemented,
+                InvalidOperationException => HttpStatusCode.TooManyRequests,
                 _ => HttpStatusCode.InternalServerError
             };
 
@@ -39,6 +40,7 @@ namespace HabitsTracker.Middlewares
                 UnauthorizedAccessException => "You are not authorized to perform this action.",
                 DbUpdateException => "A database error occurred while processing your request.",
                 NotImplementedException => "This feature is not yet implemented.",
+                InvalidOperationException => exception.Message,
                 _ => "An unexpected error occurred. Please try again later."
             };
 
