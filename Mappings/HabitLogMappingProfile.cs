@@ -10,9 +10,9 @@ namespace HabitsTracker.Mappings
     {
         public HabitLogMappingProfile()
         {
-            CreateMap<CreateHabitLogDto, HabitLog>(); //Create habit
-            CreateMap<HabitLog, ResponseHabitLogDto>(); //Get habit
-            CreateMap<UpdateHabitLogDto, HabitLog>(); //Update Habit
+            CreateMap<CreateHabitLogDto, HabitLog>();
+            CreateMap<HabitLog, ResponseHabitLogDto>();
+            CreateMap<UpdateHabitLogDto, HabitLog>();
         }
     }
 }

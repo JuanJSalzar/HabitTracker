@@ -17,6 +17,7 @@ using HabitsTracker.Repository.Implementations;
 using HabitsTracker.Repository.GenericRepository;
 using HabitsTracker.Services.ServicesImplementation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Azure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,8 +29,6 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 builder.Services.AddEndpointsApiExplorer();
-
-// --- Swagger ---
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -89,12 +88,8 @@ if (builder.Environment.IsDevelopment())
 }
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection String" + "'DefaultConnection' not found");
 
-// --- Database ---
-
 builder.Services.AddDbContext<HabitTrackerContext>(options =>
     options.UseSqlServer(connectionString));
-
-// --- Identity ---
 
 builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
 {
@@ -109,11 +104,7 @@ builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
 .AddEntityFrameworkStores<HabitTrackerContext>()
 .AddDefaultTokenProviders();
 
-// --- AutoMapper ---
-
 builder.Services.AddAutoMapper(typeof(HabitLogMappingProfile), typeof(HabitMappingProfile), typeof(UserMappingProfile));
-
-// --- Scoped Services ---
 
 builder.Services.AddScoped(typeof(IUserRepository), typeof(UserRepository));
 builder.Services.AddScoped(typeof(IHabitRepository), typeof(HabitRepository));
@@ -126,20 +117,17 @@ builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IHabitService, HabitService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
-// --- Singleton --- 
-
 builder.Services.AddSingleton<AzureOpenAIClient>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
     var endpoint = configuration["AzureOpenAI:Endpoint"];
+    var key = configuration["AzureOpenAI:Key"];
     if (string.IsNullOrEmpty(endpoint))
     {
         throw new InvalidOperationException("AzureOpenAI endpoint not configured.");
     }
-    return new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential());
+    return new AzureOpenAIClient(new Uri(endpoint), new AzureKeyCredential(key ?? throw new InvalidOperationException("AzureOpenAI key not configured.")));
 });
-
-// --- JWT Authentication ---
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 builder.Services.Configure<JwtSettings>(jwtSettings);
@@ -170,7 +158,6 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
-// --- HTTP Request Pipeline ---
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
