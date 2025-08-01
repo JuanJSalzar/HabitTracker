@@ -23,9 +23,10 @@ namespace HabitsTracker.Services.ServicesImplementation
                 throw new ValidationException("Invalid user ID.");
             }
 
-            int userMessageCount = await chatMessageRepository.CountUserMessagesAsync(userId);
+            var since = DateTime.UtcNow.Date; // Start of the current day
+            int userMessageCount = await chatMessageRepository.CountUserMessagesAsync(userId, since);
 
-            if (userMessageCount >= 5)
+            if (userMessageCount >= 20)
             {
                 logger.LogWarning("User {UserId} has reached the daily rate limit.", userId);
                 throw new InvalidOperationException("You've reached today's message limit. Please come back tomorrow.");
@@ -38,7 +39,7 @@ namespace HabitsTracker.Services.ServicesImplementation
             if (!historyChat.Any())
             {
                 messages.Add(new SystemChatMessage("You are an artificial intelligence assistant specialized exclusively in topics related to healthy habits. You can only answer questions or provide suggestions about physical activity, nutrition, rest, hydration, stress management, and overall well-being. You must not answer questions that are not related to these topics. If the user asks something outside these areas, you must respond politely that you cannot help with that."));
-                messages.Add(new AssistantChatMessage("Hello! I'm your healthy habits assistant. I can help with advice on exercise, nutrition, rest, hydration, or overall well-being. How would you like to improve today?"));
+                messages.Add(new AssistantChatMessage("You are a virtual assistant specialized EXCLUSIVELY in healthy habits. You MUST NOT answer any question unrelated to habits, wellness, nutrition, physical activity, hydration, sleep, or stress management. If the user asks anything unrelated (such as math, politics, general knowledge, programming, etc.), you MUST reply strictly with: I'm sorry, I can only help with questions related to healthy habits, wellness, nutrition, physical activity, hydration, sleep, and stress management. Never, under any circumstance, answer anything outside of these topics."));
             }
             else
             {

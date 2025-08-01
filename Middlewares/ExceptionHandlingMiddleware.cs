@@ -37,7 +37,7 @@ namespace HabitsTracker.Middlewares
             {
                 KeyNotFoundException => exception.Message,
                 ValidationException or ArgumentNullException or ArgumentException => exception.Message,
-                UnauthorizedAccessException => "You are not authorized to perform this action.",
+                UnauthorizedAccessException => "Incorrect email or password. Please try again.",
                 DbUpdateException => "A database error occurred while processing your request.",
                 NotImplementedException => "This feature is not yet implemented.",
                 InvalidOperationException => exception.Message,

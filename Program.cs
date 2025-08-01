@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using Azure.Identity;
 using Azure.AI.OpenAI;
 using HabitsTracker.Data;
@@ -21,7 +22,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // --- Add basic services ---
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 builder.Services.AddEndpointsApiExplorer();
 
 // --- Swagger ---
@@ -63,6 +68,18 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddSwaggerExamplesFromAssemblyOf<Program>();
+
+// --- CORS ---
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("habitsApp", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 // --- Configuration ---
 
@@ -163,6 +180,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+app.UseCors("habitsApp");
 
 app.UseAuthentication();
 app.UseAuthorization();

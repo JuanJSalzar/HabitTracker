@@ -17,10 +17,11 @@ public class ChatMessageRepository(HabitTrackerContext context) : GenericReposit
             .ToListAsync();
     }
 
-    public async Task<int> CountUserMessagesAsync(int userId)
+    public async Task<int> CountUserMessagesAsync(int userId, DateTime from)
     {
         return await _context.ChatMessages
             .AsNoTracking()
-            .CountAsync(m => m.UserId == userId && m.Role == "user");
+            .Where(m => m.UserId == userId && m.Timestamp >= from)
+            .CountAsync();
     }
 }
