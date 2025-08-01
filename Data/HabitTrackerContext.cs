@@ -1,12 +1,16 @@
 using HabitsTracker.Models;
+using HabitsTracker.Models.Bot;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace HabitsTracker.Data
 {
-    public class HabitTrackerContext(DbContextOptions<HabitTrackerContext> options) : DbContext(options)  //This is how context configuration from AddDbContext is passed to the DbContext
+    public class HabitTrackerContext : IdentityDbContext<User, IdentityRole<int>, int>
     {
+        public HabitTrackerContext(DbContextOptions<HabitTrackerContext> options) : base(options) { }
         public DbSet<Habit> Habits { get; set; } = null!;
-        public DbSet<User> Users { get; set; }
+        public DbSet<ChatMessageEntity> ChatMessages { get; set;}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -47,9 +51,19 @@ namespace HabitsTracker.Data
                 u.Property(u => u.Name).IsRequired(true).HasMaxLength(100);
                 u.Property(u => u.LastName).IsRequired(true).HasMaxLength(100);
                 u.Property(u => u.Email).IsRequired(true).HasMaxLength(50);
-                u.HasIndex(u => u.Email).IsUnique().HasDatabaseName("IX_User_Email");
+                u.HasIndex(u => u.Email).IsUnique();
                 u.Property(u => u.UpdatedAt).IsRequired(true).HasDefaultValueSql("GETDATE()");
                 u.Property(u => u.CreatedAt).IsRequired(true).HasDefaultValueSql("GETDATE()");
+            });
+
+            modelBuilder.Entity<ChatMessageEntity>(cte =>
+            {
+                cte.ToTable("ChatMessages");
+                cte.HasKey(k => k.Id);
+                cte.Property(cte => cte.UserId).IsRequired(true);
+                cte.Property(cte => cte.Content).IsRequired(true);
+                cte.Property(cte => cte.Role).IsRequired(true).HasMaxLength(10);
+                cte.Property(cte => cte.Timestamp).HasDefaultValueSql("GETUTCDATE()");
             });
         }
     }
