@@ -9,6 +9,6 @@ namespace HabitsTracker.DTOs.CreateDto
 
         string? Description,
 
-        CreateHabitLogDto? CurrentLog // Include habit log data when creating the habit
+        CreateHabitLogDto? CurrentLog
     );
 }

@@ -4,6 +4,8 @@ VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HabitsTracker", "HabitsTracker.csproj", "{BDCE6599-2012-A683-D2B7-18A7ABF63B4E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HabitTracker.Tests", "..\HabitTracker.Tests\HabitTracker.Tests.csproj", "{2E83AAC9-C67B-43D2-9123-0CC1F597AB38}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -14,6 +16,10 @@ Global
 		{BDCE6599-2012-A683-D2B7-18A7ABF63B4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BDCE6599-2012-A683-D2B7-18A7ABF63B4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BDCE6599-2012-A683-D2B7-18A7ABF63B4E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E83AAC9-C67B-43D2-9123-0CC1F597AB38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E83AAC9-C67B-43D2-9123-0CC1F597AB38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E83AAC9-C67B-43D2-9123-0CC1F597AB38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E83AAC9-C67B-43D2-9123-0CC1F597AB38}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

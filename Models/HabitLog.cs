@@ -3,9 +3,9 @@ namespace HabitsTracker.Models
     public class HabitLog
     {
         public required Status IsCompleted { get; set; }
-        public string? Notes { get; set; }  // Additional context
+        public string? Notes { get; set; }
         public DateTime StartTime { get; set; }
-        public TimeSpan? Duration { get; set; }  // Track how long someone spend on a habit.
+        public TimeSpan? Duration { get; set; }
     }
 
     public enum Status
