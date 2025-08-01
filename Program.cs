@@ -21,6 +21,8 @@ using Azure;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// --- Add basic services ---
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -66,6 +68,8 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddSwaggerExamplesFromAssemblyOf<Program>();
 
+// --- CORS ---
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("habitsApp", policy =>
@@ -75,6 +79,8 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     });
 });
+
+// --- Configuration ---
 
 if (builder.Environment.IsDevelopment())
 {

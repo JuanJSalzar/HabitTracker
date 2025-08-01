@@ -47,11 +47,11 @@ namespace HabitsTracker.Services.ServicesImplementation
             var historyChat = await chatMessageRepository.GetUserMessagesAsync(userId);
             var userHabits = habitRepository.GetHabitsFromUser(userId).ToList();
 
-
             string habitsProfile = userHabits.Any() ? string.Join("\n", userHabits.Select(h =>
                 $"- {h.Name}: description={h.Description} currentLog={h.CurrentLog?.IsCompleted} {h.CurrentLog?.StartTime} {h.CurrentLog?.Duration} {h.CurrentLog?.Notes}, lastUpdate={h.UpdatedAt}d")) : "No habits registered.";
 
             var messages = new List<ChatMessage>
+
             {
                 new SystemChatMessage(SystemPrompt),
                 new SystemChatMessage($$"""
